@@ -1,0 +1,40 @@
+services:
+  server:
+    container_name: precato-server
+    build: .
+    command: npm start
+    depends_on: 
+      - postgres
+      - pgadmin4
+    ports:
+      - 3000:3000
+    volumes:
+      - ./src:/usr/app/src
+    
+  postgres:
+    image: postgres
+    container_name: precato-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: Precato
+    hostname: postgres
+    ports:
+      - 15432:5432
+    volumes:
+      - /usr/postgres/data
+  
+  pgadmin4:
+    image: dpage/pgadmin4
+    container_name: precato-pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@precato.com.br
+      PGADMIN_DEFAULT_PASSWORD: precato
+    ports:
+      - 16543:80
+    depends_on:
+      - postgres
+    volumes:
+      - /usr/pgadmin
+    restart: unless-stopped
