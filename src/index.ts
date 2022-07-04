@@ -1,22 +1,28 @@
 import 'dotenv/config';
 import express from "express";
 import cors from "cors";
-import cron from "cron";
-import { Request, Response } from "express";
 import { AppDataSource } from './data-soucer';
 import { Message_Flow, Subscriptions } from './entity';
+import { postSubscriptions, postMessageFlow, getMessageFlow, getSubscriptions } from './middlewares';
+import { initializeDB } from './initializeDB';
+import cron from "node-cron";
+import { DateNow } from './utils/dateConvert';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+initializeDB();
 
-AppDataSource.initialize()
-  .then(() => {
-    console.log("Data Source has been initialized");
-  })
-  .catch((error) => console.error("Error during initialization: ", error));
+//update server 22:11;
+cron.schedule("11 22 * * *", () => {
+  console.log("run update server");
+  UpdateServer();
+}, {
+  scheduled: true,
+  timezone: "America/Sao_Paulo"
+});
 
-setInterval(async () => {
+async function UpdateServer() {
   await AppDataSource.getRepository(Subscriptions).find(
     {
       where: {
@@ -26,7 +32,7 @@ setInterval(async () => {
   ).then((subscriptions) => subscriptions.map((subscription) => {
     updateSubscriptions(subscription.id);
   }))
-}, 5000);
+};
 
 async function updateSubscriptions(id: number) {
   try {
@@ -35,7 +41,7 @@ async function updateSubscriptions(id: number) {
         template_name: {
           id: id,
         },
-        position: new Date("09-23-2022"),
+        position: DateNow(),
       },
     })
 
@@ -54,84 +60,14 @@ async function updateSubscriptions(id: number) {
   }
 }
 
-app.post("/subscriptions", async (req: Request, res: Response) => {
+app.post("/subscriptions", postSubscriptions);
 
-  const { last_message, subscription_date, name } = <Subscriptions>req.body;
+app.post("/messageFlow", postMessageFlow);
 
-  try {
-    const subscriptions = await AppDataSource.getRepository(Subscriptions).create({
-      active: true,
-      subscription_date: subscription_date,
-      last_message: last_message,
-      name: name,
-    });
+app.get("/messageFlow", getMessageFlow);
 
-    const subscriptionsCreated = await AppDataSource.getRepository(Subscriptions).save(subscriptions);
+app.get("/subscriptions", getSubscriptions);
 
-    return res.status(201).send(subscriptionsCreated)
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-app.post("/messageFlow", async (req: Request, res: Response) => {
-
-  const { position, template_name } = <Message_Flow>req.body;
-
-  try {
-    const messageFlow = await AppDataSource.getRepository(Message_Flow).create({
-      position: position,
-      template_name: template_name
-    });
-
-    const messageFlowCreated = await AppDataSource.getRepository(Message_Flow).save(messageFlow);
-    return res.status(201).send(messageFlowCreated)
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-app.get("/messageFlow", async (req: Request, res: Response) => {
-
-  try {
-    const messageFlow = await AppDataSource.getRepository(Message_Flow).find(
-      {
-        relations: {
-          template_name: true,
-        },
-      }
-    )
-
-    const messageFlowCreated = await AppDataSource.getRepository(Message_Flow).save(messageFlow);
-    return res.status(201).send(messageFlowCreated)
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-app.get("/subscriptions", async (req: Request, res: Response) => {
-
-  try {
-    const messageFlow = await AppDataSource.getRepository(Subscriptions).find(
-      {
-        relations: {
-          last_message: true
-        }
-      }
-    )
-
-    const messageFlowCreated = await AppDataSource.getRepository(Subscriptions).save(messageFlow);
-    return res.status(201).send(messageFlowCreated)
-
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-
-
-
-
-app.listen(process.env.PORT, () => {
-  console.log(`Example app listening on port ${process.env.PORT}`);
+app.listen(3000, () => {
+  console.log(`Example app listening on port 3000`);
 })
