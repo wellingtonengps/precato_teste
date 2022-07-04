@@ -13,9 +13,8 @@ export async function getSubscriptions(req: Request, res: Response) {
       }
     )
 
-    const messageFlowCreated = await AppDataSource.getRepository(Subscriptions).save(messageFlow);
-    return res.status(201).send(messageFlowCreated)
-
+    const getSubscriptions = await AppDataSource.getRepository(Subscriptions).save(messageFlow);
+    return res.status(200).send(getSubscriptions)
   } catch (error) {
     console.log(error);
   }

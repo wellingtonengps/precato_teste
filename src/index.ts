@@ -15,7 +15,6 @@ initializeDB();
 
 //update server 22:11;
 cron.schedule("11 22 * * *", () => {
-  console.log("run update server");
   UpdateServer();
 }, {
   scheduled: true,

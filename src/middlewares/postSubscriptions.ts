@@ -15,7 +15,6 @@ export async function postSubscriptions(req: Request, res: Response) {
     });
 
     const subscriptionsCreated = await AppDataSource.getRepository(Subscriptions).save(subscriptions);
-
     return res.status(201).send(subscriptionsCreated)
   } catch (error) {
     console.log(error);

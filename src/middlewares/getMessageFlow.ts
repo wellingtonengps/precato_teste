@@ -12,9 +12,8 @@ export async function getMessageFlow(req: Request, res: Response) {
         },
       }
     )
-
-    const messageFlowCreated = await AppDataSource.getRepository(Message_Flow).save(messageFlow);
-    return res.status(201).send(messageFlowCreated)
+    const getMessageFlow = await AppDataSource.getRepository(Message_Flow).save(messageFlow);
+    return res.status(200).send(getMessageFlow)
   } catch (error) {
     console.log(error);
   }
