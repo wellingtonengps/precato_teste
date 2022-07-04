@@ -29,16 +29,16 @@ async function UpdateServer() {
       },
     }
   ).then((subscriptions) => subscriptions.map((subscription) => {
-    updateSubscriptions(subscription.id);
+    updateSubscriptions(subscription.email);
   }))
 };
 
-async function updateSubscriptions(id: number) {
+async function updateSubscriptions(email: string) {
   try {
     const lastMessage = await AppDataSource.getRepository(Message_Flow).findOne({
       where: {
-        template_name: {
-          id: id,
+        template_email: {
+          email: email
         },
         position: DateNow(),
       },
@@ -48,16 +48,26 @@ async function updateSubscriptions(id: number) {
       AppDataSource.createQueryBuilder().update(Subscriptions).set({
         last_message: lastMessage,
         active: true
-      }).where({ id: id }).execute();
+      }).where({ email: email }).execute();
     } else {
       AppDataSource.createQueryBuilder().update(Subscriptions).set({
         active: false
-      }).where({ id: id }).execute()
+      }).where({ email: email }).execute()
     }
   } catch (error) {
     console.log(error);
   }
 }
+
+app.get("/", (req, res) => {
+
+  try {
+    return res.status(200).send({ message: "server running" })
+  } catch (error) {
+    return res.send(401).send({ error: "bad request" })
+  }
+
+})
 
 app.post("/subscriptions", postSubscriptions);
 

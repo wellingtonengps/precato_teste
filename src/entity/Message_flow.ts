@@ -6,8 +6,8 @@ export class Message_Flow {
   @PrimaryGeneratedColumn()
   id: number
 
-  @ManyToOne(() => Subscriptions, (subscriptions) => subscriptions.name)
-  template_name: Subscriptions[]
+  @ManyToOne(() => Subscriptions, (subscriptions) => subscriptions.id)
+  template_email: Subscriptions[]
 
   @Column({ type: "timestamptz" })
   position: Date

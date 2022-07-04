@@ -8,7 +8,7 @@ export async function getMessageFlow(req: Request, res: Response) {
     const messageFlow = await AppDataSource.getRepository(Message_Flow).find(
       {
         relations: {
-          template_name: true,
+          template_email: true,
         },
       }
     )
